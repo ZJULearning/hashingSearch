@@ -24,7 +24,7 @@ void load_data(char* filename, float*& data, size_t& num,int& dim){// load data 
   in.close();
 }
 int main(int argc, char** argv){
-  if(argc!=9 && argc!=12 && argc!=13){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile result_file codelen initsz querNN graph_index(optional) epoch(optional) extend(optional) search_method(optional)" <<endl; exit(-1);}
+  if(argc!=9){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile result_file codelen initsz querNN" <<endl; exit(-1);}
 
   float* data_load = NULL;
   float* query_load = NULL;
@@ -41,15 +41,7 @@ int main(int argc, char** argv){
   FIndex<float> index(dataset, new L2DistanceAVX<float>(), efanna::HAMMINGIndexParams(codelen,argv[2],argv[4]));
 
   int poolsz = atoi(argv[7]);
-  if (argc == 9){
-	  index.setSearchParams(1, poolsz, poolsz);
-  }else{
-	  index.loadGraph(argv[9]);
-	  int search_epoc = atoi(argv[10]);
-	  int search_extend = atoi(argv[11]);
-	  int search_method = argc == 13 ? atoi(argv[12]) : 0;
-	  index.setSearchParams(search_epoc, poolsz, search_extend,search_method);
-  }
+  index.setSearchParams(1, poolsz, poolsz);
 
   auto s = std::chrono::high_resolution_clock::now();
   index.knnSearch(atoi(argv[8])/*query nn*/,query);

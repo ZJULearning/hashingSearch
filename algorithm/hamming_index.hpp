@@ -211,26 +211,6 @@ public:
 
 	void getNeighbors(size_t K, const Matrix<DataType>& query){
 
-		if(gs.size() != features_.get_rows()){
-			getNeighborsHamming(K,query);
-		}else{
-			switch(SP.search_method){
-			case 0:
-				getNeighborsIEH_kgraph(K, query);
-				break;
-			case 1:
-				getNeighborsIEH_nnexp(K, query);
-				break;
-			default:
-				std::cout<<"no such searching method"<<std::endl;
-			}
-		}
-
-	}
-
-
-	void getNeighborsHamming(size_t K, const Matrix<DataType>& query) {
-
 		size_t pNum = BaseCode[0].size();
 		size_t nTable = BaseCode.size();
 
@@ -272,122 +252,10 @@ public:
 				nn_results.push_back(res);
 			}
 		}
-
 	}
 
 
 
-	void getNeighborsIEH_nnexp(size_t K, const Matrix<DataType>& query){
-
-		size_t pNum = BaseCode[0].size();
-		size_t nTable = BaseCode.size();
-
-
-		boost::dynamic_bitset<> tbflag(features_.get_rows(), false);
-		nn_results.clear();
-
-
-		for(size_t cur = 0; cur < query.get_rows(); cur++){
-			tbflag.reset();
-			std::vector<int> pool(SP.search_init_num);
-
-
-			std::vector<int>hammingDistance(pNum);
-			std::fill(hammingDistance.begin(), hammingDistance.end(), 0);
-
-			for (size_t j = 0; j < nTable; j++) {
-				for (size_t i = 0; i < pNum; i++) {
-					hammingDistance[i] += parallel_popcnt32(BaseCode[j][i] ^ QueryCode[j][cur]);
-				}
-			}
-
-			// initialize index
-			std::vector<size_t> hammingDistanceIndex(pNum);
-			for (size_t i = 0; i < hammingDistanceIndex.size(); i++) {
-				hammingDistanceIndex[i] = i;
-			}
-			// compare function
-			auto compare_func = [&hammingDistance](const size_t a, const size_t b)->bool
-					{
-				return hammingDistance[a] < hammingDistance[b];
-					};
-			// sort the index by its value
-			std::partial_sort(hammingDistanceIndex.begin(), hammingDistanceIndex.begin() + SP.search_init_num, hammingDistanceIndex.end(),  compare_func);
-
-			for(unsigned int i=0; i<(unsigned) SP.search_init_num;i++){
-				pool.push_back(hammingDistanceIndex[i]);
-				tbflag.set(hammingDistanceIndex[i]);
-			}
-
-			InitIndex<DataType>::nnExpansion(K, query.get_row(cur), pool, tbflag);
-			nn_results.push_back(pool);
-		}
-	}
-
-	void getNeighborsIEH_kgraph(size_t K, const Matrix<DataType>& query){
-		size_t pNum = BaseCode[0].size();
-		size_t nTable = BaseCode.size();
-
-
-		nn_results.clear();
-		boost::dynamic_bitset<> tbflag(features_.get_rows(), false);
-
-		bool bSorted = true;
-		unsigned pool_size = SP.search_epoches * SP.extend_to;
-		if (pool_size >= (unsigned)SP.search_init_num){
-			SP.search_init_num = pool_size;
-			bSorted = false;
-		}
-
-
-		for(size_t cur = 0; cur < query.get_rows(); cur++){
-
-			tbflag.reset();
-
-			std::vector<int>hammingDistance(pNum);
-			std::fill(hammingDistance.begin(), hammingDistance.end(), 0);
-
-			for (size_t j = 0; j < nTable; j++) {
-				for (size_t i = 0; i < pNum; i++) {
-					hammingDistance[i] += parallel_popcnt32(BaseCode[j][i] ^ QueryCode[j][cur]);
-				}
-			}
-
-			// initialize index
-			std::vector<size_t> hammingDistanceIndex(pNum);
-			for (size_t i = 0; i < hammingDistanceIndex.size(); i++) {
-				hammingDistanceIndex[i] = i;
-			}
-			// compare function
-			auto compare_func = [&hammingDistance](const size_t a, const size_t b)->bool
-					{
-				return hammingDistance[a] < hammingDistance[b];
-					};
-			// sort the index by its value
-			std::partial_sort(hammingDistanceIndex.begin(), hammingDistanceIndex.begin() + SP.search_init_num, hammingDistanceIndex.end(),  compare_func);
-
-
-
-			//sorting the pool
-			std::vector<std::pair<float,size_t>> result;
-			for(unsigned int i=0; i<(unsigned) SP.search_init_num;i++){
-				result.push_back(std::make_pair(distance_->compare(query.get_row(cur), features_.get_row(hammingDistanceIndex[i]), features_.get_cols()),hammingDistanceIndex[i]));
-				tbflag.set(hammingDistanceIndex[i]);
-			}
-
-			if(bSorted){
-				std::partial_sort(result.begin(), result.begin() + pool_size, result.end());
-				result.resize(pool_size);
-			}
-
-			std::vector<int> res;
-			InitIndex<DataType>::nnExpansion_kgraph(K,  query.get_row(cur), result, res, bSorted);
-
-			nn_results.push_back(res);
-
-
-		}
-	}
 
 
 
