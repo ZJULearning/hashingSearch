@@ -290,9 +290,9 @@ public:
 
 
 protected:
-	int codelength;
 	USING_BASECLASS_SYMBOLS
 
+	int codelength;
 	Codes BaseCode;
 	Codes QueryCode;
 

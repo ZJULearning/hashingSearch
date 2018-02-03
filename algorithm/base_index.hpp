@@ -298,12 +298,8 @@ protected:
 	const Matrix<DataType> features_;
 	const Distance<DataType>* distance_;
 	const IndexParams params_;
-	//std::vector<std::vector<Point> > g;
 	std::vector<std::vector<unsigned> > gs;
-	//std::vector<unsigned> M;
-	//std::vector<DataType> norms;
 	std::vector<std::vector<int> > nn_results;
-	//DataType* Radius;
 };
 #define USING_BASECLASS_SYMBOLS \
 		using InitIndex<DataType>::distance_;\
