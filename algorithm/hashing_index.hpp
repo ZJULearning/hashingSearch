@@ -125,8 +125,8 @@ public:
 		if(it != params_.extra_params.end()){
 			index_method = (it->second).int_val;
 		}
-        if(index_method > 1){
-            index_method = 1;
+        if(index_method > 2){
+            index_method = 2;
         }
 
 
@@ -287,6 +287,105 @@ public:
                 lenPre = remain;
                 codePre = codeRemain;
 			}
+
+			codeRemain = baseOrig[nTableOrig-1][i];
+			//std::cout <<"Orig"<<i<<" "<< std::bitset<32>(codeRemain) << std::endl;
+            remain = codelength - 32*(nTableOrig - 1);
+            if(remain < (unsigned) tablelen){
+                std::cout << "Not implemented! " << std::endl;
+            }
+			if (lenPre + remain > (unsigned) tablelen){
+                if(lenPre > 0){
+                    unsigned int need = tablelen-lenPre;
+                    base[tableidx][i] = codePre << need;
+                    remain = remain - need;
+					base[tableidx][i] += codeRemain >> remain;
+					tableidx ++;
+					codeRemain = codeRemain & ((1 << remain) - 1);
+                }
+				while(remain >= (unsigned) tablelen){
+                    remain = remain - tablelen;
+					base[tableidx][i] = codeRemain >> remain;
+					//std::cout << std::bitset<32>(base[tableidx][i]) << std::endl;
+					tableidx ++;
+					codeRemain = codeRemain & ((1 << remain) - 1);
+				}
+				if(remain > 0){
+				    codeRemain = baseOrig[nTableOrig-1][i];
+	                base[tableidx][i] = codeRemain & ((1<< tablelen)-1);
+				}
+            }else{
+                if(lenPre > 0){
+                    unsigned int need = tablelen-lenPre;
+                    base[tableidx][i] = codePre << need;
+                }
+				base[tableidx][i] += codeRemain;
+            }
+		}
+	}
+
+	void ConvertCode2(Codes& baseOrig, Codes& base, int tablelen){
+
+		unsigned pNum = baseOrig[0].size();
+		unsigned nTableOrig = baseOrig.size();
+
+		unsigned tableNum = codelength / tablelen;
+		unsigned lastLen = codelength % tablelen;
+
+        if(lastLen > 0){
+			for (unsigned i=0; i<tableNum+1; i++){
+				Code table(pNum);
+				std::fill(table.begin(), table.end(), 0);
+				base.push_back(table);
+			}
+		}else{
+			for (unsigned i=0; i<tableNum; i++){
+				Code table(pNum);
+				std::fill(table.begin(), table.end(), 0);
+				base.push_back(table);
+			}
+		}
+
+        int shift = 32 - tablelen;
+		for (unsigned i = 0; i < pNum; i++) {
+			for (unsigned j = 0; j < nTableOrig; j++) {
+				base[j][i] = baseOrig[j][i] >> shift;
+			}
+		}
+
+		for (unsigned i = 0; i < pNum; i++) {
+	
+            unsigned tableidx = pNum;
+    		unsigned codePre = 0;
+            unsigned lenPre = 0;
+		    unsigned codeRemain = 0;
+    		unsigned remain = shift;
+            unsigned j = 0;
+            unsigned need = tablelen;
+			while (j < nTableOrig) {
+                if(lenPre > 0){
+                    need = tablelen-lenPre;
+                    base[tableidx][i] = codePre << need;
+                    lenPre = 0;
+                }
+                remain = shift;
+				codeRemain = baseOrig[j][i];
+				codeRemain = codeRemain & ((1 << remain) - 1);
+                j++;
+				while(need > 0){
+                    if(remain > need){
+
+                    }else{
+
+                        remain = remain - tablelen;
+    					base[tableidx][i] = codeRemain >> remain;
+					    tableidx ++;
+					    codeRemain = codeRemain & ((1 << remain) - 1);
+
+				    }
+                    lenPre = remain;
+                    codePre = codeRemain;
+			    }
 
 			codeRemain = baseOrig[nTableOrig-1][i];
 			//std::cout <<"Orig"<<i<<" "<< std::bitset<32>(codeRemain) << std::endl;
@@ -665,6 +764,10 @@ public:
 		case 1:
 		    ConvertCode1(BaseCodeOrig, BaseCode, tablelen);
 		    ConvertCode1(QueryCodeOrig, QueryCode, tablelen);
+			break;
+		case 2:
+		    ConvertCode2(BaseCodeOrig, BaseCode, tablelen);
+		    ConvertCode2(QueryCodeOrig, QueryCode, tablelen);
 			break;
 		default:
 			std::cout<<"no such indexing method"<<std::endl;
