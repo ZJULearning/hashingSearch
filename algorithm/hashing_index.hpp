@@ -353,60 +353,67 @@ public:
 			}
 		}
 
-		for (unsigned i = 0; i < pNum; i++) {
-			unsigned tableidx = nTableOrig;
-			unsigned codePre = 0;
-			unsigned lenPre = 0;
-			unsigned codeRemain = 0;
-			unsigned remain = shift;
-			unsigned j = 0;
-			unsigned need = tablelen;
-			while (j < nTableOrig-1) {
+
+		if (shift > 0){
+			for (unsigned i = 0; i < pNum; i++) {
+				unsigned tableidx = nTableOrig;
+				unsigned codePre = 0;
+				unsigned lenPre = 0;
+				unsigned codeRemain = 0;
+				unsigned remain = 0;
+				unsigned j = 0;
+				unsigned need = tablelen;
+				while (j < nTableOrig-1) {
+					if(lenPre > 0){
+						need = tablelen-lenPre;
+						base[tableidx][i] = codePre << need;
+						lenPre = 0;
+					}
+					remain = shift;
+					codeRemain = baseOrig[j][i];
+					codeRemain = codeRemain & ((1 << shift) - 1);
+					j++;
+					while(need > 0 && remain <= need && j < nTableOrig-1){
+						need = need - remain;
+						base[tableidx][i] += codeRemain << need;
+						remain = shift;
+						codeRemain = baseOrig[j][i];
+						codeRemain = codeRemain & ((1 << shift) - 1);
+						j++;
+					}
+					if(remain > need){
+						lenPre = remain - need;
+						if(need > 0){
+							codePre = codeRemain & ((1 << lenPre) - 1);
+							base[tableidx][i] += codeRemain >> lenPre;
+						}else{
+							codePre = codeRemain;
+						}
+						tableidx++;
+						need = tablelen;
+					}
+				}
+
 				if(lenPre > 0){
 					need = tablelen-lenPre;
 					base[tableidx][i] = codePre << need;
 					lenPre = 0;
 				}
 				remain = shift;
-				codeRemain = baseOrig[j][i];
+				codeRemain = baseOrig[nTableOrig-1][i];
 				codeRemain = codeRemain & ((1 << shift) - 1);
-				j++;
-				while(need > 0 && remain <= need){
-					need = need - remain;
-					base[tableidx][i] += codeRemain << need;
-					remain = shift;
-					codeRemain = baseOrig[j][i];
-					codeRemain = codeRemain & ((1 << shift) - 1);
-					j++;
-				}
-				if(remain > need){
-					lenPre = remain - need;
-					codePre = codeRemain & ((1 << lenPre) - 1);
-					base[tableidx][i] += codeRemain >> lenPre;
+				if(remain >= need){
+					remain = remain - need;
+					base[tableidx][i] += codeRemain >> remain;
 					tableidx++;
 					need = tablelen;
+					codeRemain = codeRemain & ((1 << remain) - 1);
 				}
-			}
 
-			if(lenPre > 0){
-				need = tablelen-lenPre;
-				base[tableidx][i] = codePre << need;
-				lenPre = 0;
-			}
-			remain = shift;
-			codeRemain = baseOrig[nTableOrig-1][i];
-			codeRemain = codeRemain & ((1 << shift) - 1);
-			if(remain >= need){
-				remain = remain - need;
-				base[tableidx][i] += codeRemain >> remain;
-				tableidx++;
-				need = tablelen;
-				codeRemain = codeRemain & ((1 << remain) - 1);
-			}
-
-			if(remain > 0){
-				codeRemain = baseOrig[nTableOrig-1][i];
-				base[tableidx][i] = codeRemain & ((1 << tablelen) - 1);
+				if(remain > 0){
+					codeRemain = baseOrig[nTableOrig-1][i];
+					base[tableidx][i] = codeRemain & ((1 << tablelen) - 1);
+				}
 			}
 		}
 
