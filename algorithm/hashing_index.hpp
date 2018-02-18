@@ -125,8 +125,8 @@ public:
 		if(it != params_.extra_params.end()){
 			index_method = (it->second).int_val;
 		}
-		if(index_method > 2){
-			index_method = 2;
+		if(index_method > 3){
+			index_method = 3;
 		}
 
 
@@ -236,6 +236,31 @@ public:
 		}
 	}
 
+	void ConvertCode3(Codes& baseOrig, Codes& base, int tablelen){
+
+		unsigned pNum = baseOrig[0].size();
+		unsigned nTableOrig = baseOrig.size();
+
+		for (unsigned i=0; i<nTableOrig; i++){
+			Code table(pNum);
+			std::fill(table.begin(), table.end(), 0);
+			base.push_back(table);
+		}
+
+        if(tablelen == 32){
+            for (unsigned i = 0; i < pNum; i++) {
+			    for (unsigned j = 0; j < nTableOrig; j++) {
+				    base[j][i] = baseOrig[j][i];
+			    }
+    		}
+        }else{
+            for (unsigned i = 0; i < pNum; i++) {
+			    for (unsigned j = 0; j < nTableOrig; j++) {
+				    base[j][i] = baseOrig[j][i] & ((1 << tablelen) - 1);
+			    }
+    		}
+        }
+    }
 
 	void ConvertCode1(Codes& baseOrig, Codes& base, int tablelen){
 
@@ -764,6 +789,10 @@ public:
 		case 2:
 			ConvertCode2(BaseCodeOrig, BaseCode, tablelen);
 			ConvertCode2(QueryCodeOrig, QueryCode, tablelen);
+			break;
+		case 3:
+			ConvertCode3(BaseCodeOrig, BaseCode, tablelen);
+			ConvertCode3(QueryCodeOrig, QueryCode, tablelen);
 			break;
 		default:
 			std::cout<<"no such indexing method"<<std::endl;
