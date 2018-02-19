@@ -54,7 +54,7 @@ int main(int argc, char** argv){
 
   s = std::chrono::high_resolution_clock::now();
   cout<<"Locate start! "<<endl;
-  index.locatPoints(codelen/*use hashing table*/,query);
+  index.locatPoints(query);
   e = std::chrono::high_resolution_clock::now();
   diff = e-s;
   std::cout << "Query locate time: " << diff.count() << "\n";

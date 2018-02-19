@@ -287,11 +287,11 @@ public:
 
 	virtual void getNeighbors(size_t K, const Matrix<DataType>& query) = 0;
 
-	virtual void locatPoints(int nT, const Matrix<DataType>& query){
-		locateNeighbors(nT,query);
+	virtual void locatPoints(const Matrix<DataType>& query){
+		locateNeighbors(query);
 	}
 
-	virtual void locateNeighbors(size_t nT, const Matrix<DataType>& query) = 0;
+	virtual void locateNeighbors(const Matrix<DataType>& query) = 0;
 
 
 protected:

@@ -173,19 +173,20 @@ public:
 	void buildIndexImpl(){}
 
 
-	void locateNeighbors(size_t nT, const Matrix<DataType>& query){
+	void locateNeighbors(const Matrix<DataType>& query){
 
 		size_t pNum = BaseCode[0].size();
 		size_t nTable = BaseCode.size();
 
-		//if (nT > nTable){std::cout << "index code length not enough!"; nT = nTable;}
-		nT = nTable;
+		//HammingDistNum.clear();
+		//HammingDistNum.resize(codelength+1);
+		//std::fill(HammingDistNum.begin(), HammingDistNum.end(), 0);
 
 		for (size_t cur = 0; cur < query.get_rows(); cur++) {
 			std::vector<int>hammingDistance(pNum);
 			std::fill(hammingDistance.begin(), hammingDistance.end(), 0);
 
-			for (size_t j = 0; j < nT; j++) {
+			for (size_t j = 0; j < nTable; j++) {
 				for (size_t i = 0; i < pNum; i++) {
 					hammingDistance[i] += parallel_popcnt32(BaseCode[j][i] ^ QueryCode[j][cur]);
 				}
@@ -204,7 +205,12 @@ public:
 			// sort the index by its value
 			std::partial_sort(hammingDistanceIndex.begin(), hammingDistanceIndex.begin() + SP.search_init_num, hammingDistanceIndex.end(),  compare_func);
 
+			/*for (size_t i = 0; i < (unsigned) SP.search_init_num; i++) {
+				HammingDistNum[hammingDistance[hammingDistanceIndex[i]]]++;
+			}*/
+
 		}
+
 
 	}
 
@@ -249,17 +255,19 @@ public:
 				std::partial_sort(Distance.begin(), Distance.begin() + K, Distance.end());
 
 				for (unsigned int j = 0; j < K; j++) res.push_back(Distance[j].second);
-				nn_results.push_back(res);
 			}
+			nn_results.push_back(res);
 		}
 	}
 
 
 
-
-
-
 	void outputVisitBucketNum(){
+		for (size_t i = 0; i < HammingDistNum.size(); i++){
+			if(HammingDistNum[i]>0){
+				std::cout <<"hamming dist "<< i <<": "<< HammingDistNum[i]<<std::endl;
+			}
+		}
 	}
 
 
@@ -295,6 +303,9 @@ protected:
 	int codelength;
 	Codes BaseCode;
 	Codes QueryCode;
+
+	// for statistic info
+	std::vector<unsigned> HammingDistNum;
 
 };
 }

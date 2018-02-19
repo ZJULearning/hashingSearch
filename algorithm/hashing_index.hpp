@@ -751,12 +751,12 @@ public:
 	}
 
 
-	void printCode(Codes& base){
+	void printCode(Codes& base, unsigned codelength = 32){
 		unsigned nTable = base.size();
 		for(unsigned i=0; i<nTable;i++){
 			unsigned codetmp = base[i][0];
-			std::cout << (codetmp >> 31) << " ";
-			for(int j=31;j>0;j--){
+			std::cout << (codetmp >> (codelength -1)) << " ";
+			for(int j=(codelength-1);j>0;j--){
 				codetmp = codetmp & ((1 << j) - 1);
 				std::cout << (codetmp >> (j-1)) << " ";
 			}
@@ -802,14 +802,14 @@ public:
 		generateMask();
 
 		/*std::cout << "BaseCodeOrig:" << std::endl;
-		printCodeBitset(BaseCodeOrig);
+		printCode(BaseCodeOrig);
 		std::cout << "BaseCode:" << std::endl;
-		printCodeBitset(BaseCode);*/
+		printCode(BaseCode,tablelen);*/
 
 	}
 
 
-	void locateNeighbors(size_t nT, const Matrix<DataType>& query){
+	void locateNeighbors(const Matrix<DataType>& query){
 		int lowbits = tablelen - upbits;
 
 		unsigned int MaxCheck=HammingRadius[radius];
@@ -1170,7 +1170,11 @@ protected:
 
 	std::vector<HashTable> htb;
 	std::vector<unsigned int> HammingBallMask;
+
+
+
 	std::vector<unsigned int> HammingRadius;
+
 
 	// for statistic info
 	std::vector<unsigned int> VisitBucketNum;

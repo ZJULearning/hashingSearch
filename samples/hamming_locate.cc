@@ -24,7 +24,7 @@ void load_data(char* filename, float*& data, size_t& num,int& dim){// load data 
   in.close();
 }
 int main(int argc, char** argv){
-  if(argc!=8){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile codelen initsz nTableUsed" <<endl; exit(-1);}
+  if(argc!=7){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile codelen initsz" <<endl; exit(-1);}
 
   float* data_load = NULL;
   float* query_load = NULL;
@@ -45,10 +45,13 @@ int main(int argc, char** argv){
 
   auto s = std::chrono::high_resolution_clock::now();
   cout<<"Locate start! "<<endl;
-  index.locatPoints(atoi(argv[7])/*use hashing table*/,query);
+  index.locatPoints(query);
   auto e = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> diff = e-s;
   std::cout << "Query locate time: " << diff.count() << "\n";
+
+  //index.outputVisitBucketNum();
+
 
   return 0;
 }

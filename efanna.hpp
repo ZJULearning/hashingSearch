@@ -32,8 +32,8 @@ public:
 	void knnSearch(int k, const Matrix<DataType>& query){
 		initIndex_->knnSearch(k, query);
 	}
-	void locatPoints(int nT, const Matrix<DataType>& query){
-		initIndex_->locatPoints(nT, query);
+	void locatPoints(const Matrix<DataType>& query){
+		initIndex_->locatPoints(query);
 	}
 	void saveIndex(char* filename){
 		initIndex_->saveIndex(filename);
