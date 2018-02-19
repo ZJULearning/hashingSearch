@@ -101,22 +101,17 @@ public:
 	            std::cout << "radius greater than 11 not supported yet!" << std::endl;
 	            radius = 11;
 	          }
-	        }else if(tablelen<=40){
-	          if(radius > 10){
-	            std::cout << "radius greater than 10 not supported yet!" << std::endl;
-	            radius = 10;
-	          }
-	        }else if(tablelen<=48){
+	        }else if(tablelen<=44){
 	          if(radius > 9){
 	            std::cout << "radius greater than 9 not supported yet!" << std::endl;
 	            radius = 9;
 	          }
-	        }else if(tablelen<=56){
+	        }else if(tablelen<=52){
 	          if(radius > 8){
 	            std::cout << "radius greater than 8 not supported yet!" << std::endl;
 	            radius = 8;
 	          }
-	        }else{ //tablelen<=64
+	        }else{
 	          if(radius > 7){
 	            std::cout << "radius greater than 7 not supported yet!" << std::endl;
 	            radius = 7;
@@ -158,8 +153,8 @@ public:
 		if(it != params_.extra_params.end()){
 			index_method = (it->second).int_val;
 		}
-		if(index_method > 3){
-			index_method = 3;
+		if(index_method > 1){
+			index_method = 1;
 		}
 
 
@@ -269,7 +264,7 @@ public:
 		}
 	}
 
-	void ConvertCode3(Codes& baseOrig, Codes& base, int tablelen){
+	/*void ConvertCode3(Codes& baseOrig, Codes& base, int tablelen){
 
 		unsigned pNum = baseOrig[0].size();
 		unsigned nTableOrig = baseOrig.size();
@@ -293,14 +288,14 @@ public:
 				}
 			}
 		}
-	}
+	}*/
 
 	void ConvertCode1(Codes& baseOrig, Codes& base, int tablelen){
 
 		unsigned pNum = baseOrig[0].size();
 		unsigned nTableOrig = baseOrig.size();
 
-		unsigned tableNum = codelength / tablelen;
+		/*unsigned tableNum = codelength / tablelen;
 		unsigned lastLen = codelength % tablelen;
 
 		if(lastLen > 0){
@@ -315,7 +310,15 @@ public:
 				std::fill(table.begin(), table.end(), 0);
 				base.push_back(table);
 			}
+		}*/
+		unsigned tableNum = codelength / tablelen;
+
+		for (unsigned i=0; i<tableNum; i++){
+			Code table(pNum);
+			std::fill(table.begin(), table.end(), 0);
+			base.push_back(table);
 		}
+
 
 		for (unsigned i = 0; i < pNum; i++) {
 			unsigned int tableidx = 0;
@@ -347,8 +350,23 @@ public:
 			}
 
 			codeRemain = baseOrig[nTableOrig-1][i];
-			//std::cout <<"Orig"<<i<<" "<< std::bitset<32>(codeRemain) << std::endl;
-			remain = codelength - 32*(nTableOrig - 1);
+			remain = 32;
+			if(lenPre > 0){
+				unsigned int need = tablelen-lenPre;
+				base[tableidx][i] = codePre << need;
+				remain = remain - need;
+				base[tableidx][i] += codeRemain >> remain;
+				tableidx ++;
+				codeRemain = codeRemain & ((1 << remain) - 1);
+			}
+			while(remain >= (unsigned) tablelen){
+				remain = remain - tablelen;
+				base[tableidx][i] = codeRemain >> remain;
+				tableidx ++;
+				codeRemain = codeRemain & ((1 << remain) - 1);
+			}
+
+			/*remain = codelength - 32*(nTableOrig - 1);
 			if(remain < (unsigned) tablelen){
 				std::cout << "Not implemented! " << std::endl;
 			}
@@ -378,11 +396,12 @@ public:
 					base[tableidx][i] = codePre << need;
 				}
 				base[tableidx][i] += codeRemain;
-			}
+			}*/
+
 		}
 	}
 
-	void ConvertCode2(Codes& baseOrig, Codes& base, int tablelen){
+	/*void ConvertCode2(Codes& baseOrig, Codes& base, int tablelen){
 
 		unsigned pNum = baseOrig[0].size();
 		unsigned nTableOrig = baseOrig.size();
@@ -475,7 +494,7 @@ public:
 			}
 		}
 
-	}
+	}*/
 
 	void ConvertCode64(Codes& baseOrig, Codes64& base, int tablelen){
 
@@ -483,6 +502,13 @@ public:
 		unsigned nTableOrig = baseOrig.size();
 
 		unsigned tableNum = codelength / tablelen;
+		for (unsigned i=0; i<tableNum; i++){
+			Code64 table(pNum);
+			std::fill(table.begin(), table.end(), 0);
+			base.push_back(table);
+		}
+
+		/*unsigned tableNum = codelength / tablelen;
 		unsigned lastLen = codelength % tablelen;
 
 		if(lastLen > 0){
@@ -497,7 +523,7 @@ public:
 				std::fill(table.begin(), table.end(), 0);
 				base.push_back(table);
 			}
-		}
+		}*/
 
 		for (unsigned i = 0; i < pNum; i++) {
 		//for (unsigned i = 0; i < 1; i++) {
@@ -508,23 +534,25 @@ public:
 			unsigned remain = 0;
 			unsigned j = 0;
 			unsigned need = tablelen;
-			while (j < nTableOrig) {
+			while (j < nTableOrig && tableidx<tableNum) {
 				if(lenPre > 0){
+					//std::cout << "pre: "<< lenPre << std::endl;
 					need = need-lenPre;
+					//if(tableidx==tableNum) std::cout<<"tableidx out 1! "<< "j: "<< j<<std::endl;
 					base[tableidx][i] = codePre << need;
 					lenPre = 0;
 				}
 				remain = 32;
+				//std::cout << "j: "<< j << std::endl;
 				codeRemain = baseOrig[j][i];
-				//std::cout << std::bitset<32>(baseOrig[j][i]) << std::endl;
 				j++;
 				while(need > 0 && remain <= need && j < nTableOrig){
 					need = need - remain;
+					//if(tableidx==tableNum) std::cout<<"tableidx out 2! "<< "j: "<< j<<std::endl;
 					base[tableidx][i] += codeRemain << need;
-					//std::cout << std::bitset<64>(base[tableidx][i]) << std::endl;
 					remain = 32;
+					//std::cout << "j: "<< j << std::endl;
 					codeRemain = baseOrig[j][i];
-					//std::cout << std::bitset<32>(baseOrig[j][i]) << std::endl;
 					j++;
 				}
 				if(remain > 0){
@@ -532,49 +560,21 @@ public:
 						lenPre = remain - need;
 						if(need > 0){
 							codePre = codeRemain & ((1 << lenPre) - 1);
+							//if(tableidx==tableNum) std::cout<<"tableidx out 3! "<< "j: "<< j<<std::endl;
 							base[tableidx][i] += codeRemain >> lenPre;
 						}else{
 							codePre = codeRemain;
 						}
-						//std::cout << std::bitset<64>(base[tableidx][i]) << std::endl;
 						tableidx++;
 						need = tablelen;
 					}else{
 						need = need - remain;
+						//if(tableidx==tableNum) std::cout<<"tableidx out 4! "<< "j: "<< j<<std::endl;
 						base[tableidx][i] += codeRemain << need;
-						//std::cout << std::bitset<64>(base[tableidx][i]) << std::endl;
 					}
 				}
 			}
 
-			if(lenPre > 0){
-				base[tableidx][i] = baseOrig[nTableOrig-1][i];
-			}
-
-			/*if(lenPre > 0){
-				need = tablelen-lenPre;
-				base[tableidx][i] = codePre << need;
-				std::cout <<lenPre<< ": " << std::bitset<64>(codePre) << std::endl;
-				lenPre = 0;
-			}*/
-
-			/*remain = 32;
-			codeRemain = baseOrig[nTableOrig-1][i];
-			std::cout << std::bitset<32>(baseOrig[nTableOrig-1][i]) << std::endl;
-			if(remain >= need){
-				remain = remain - need;
-				base[tableidx][i] += codeRemain >> remain;
-				std::cout << std::bitset<64>(base[tableidx][i]) << std::endl;
-				tableidx++;
-				need = tablelen;
-				codeRemain = codeRemain & ((1 << remain) - 1);
-			}
-
-			if(remain > 0){
-				codeRemain = baseOrig[nTableOrig-1][i];
-				base[tableidx][i] = codeRemain & ((1 << tablelen) - 1);
-				std::cout << "remain: " << std::bitset<64>(base[tableidx][i]) << std::endl;
-			}*/
 		}
 	}
 
@@ -618,7 +618,7 @@ public:
 				tb.push_back(emptyBucket);
 			}
 
-			for(size_t i = 0; i < base.size(); i ++){
+			for(size_t i = 0; i < base.size(); i++){
 				unsigned int idx1 = base[i] >> lowbits;
 				unsigned long idx2 = base[i] & ((One << lowbits) - 1);
 				if(tb[idx1].find(idx2) != tb[idx1].end()){
@@ -1133,6 +1133,7 @@ public:
 
 	void printCode(Codes& base, unsigned codelength = 32){
 		unsigned nTable = base.size();
+		std::cout << nTable << " tables:" << std::endl;
 		for(unsigned i=0; i<nTable;i++){
 			unsigned codetmp = base[i][0];
 			std::cout << (codetmp >> (codelength -1)) ;
@@ -1146,6 +1147,7 @@ public:
 
 	void printCode64(Codes64& base, unsigned codelength = 64){
 		unsigned nTable = base.size();
+		std::cout << nTable << " tables:" << std::endl;
 		unsigned long One = 1;
 		for(unsigned i=0; i<nTable;i++){
 			unsigned long codetmp = base[i][0];
@@ -1189,14 +1191,6 @@ public:
 				ConvertCode1(BaseCodeOrig, BaseCode, tablelen);
 				ConvertCode1(QueryCodeOrig, QueryCode, tablelen);
 				break;
-			case 2:
-				ConvertCode2(BaseCodeOrig, BaseCode, tablelen);
-				ConvertCode2(QueryCodeOrig, QueryCode, tablelen);
-				break;
-			case 3:
-				ConvertCode3(BaseCodeOrig, BaseCode, tablelen);
-				ConvertCode3(QueryCodeOrig, QueryCode, tablelen);
-				break;
 			default:
 				std::cout<<"no such indexing method"<<std::endl;
 			}
@@ -1210,17 +1204,22 @@ public:
 			printCode(BaseCode,tablelen);*/
 
 		}else{
-			ConvertCode64(BaseCodeOrig, BaseCode64, tablelen);
-			ConvertCode64(QueryCodeOrig, QueryCode64, tablelen);
 
+			ConvertCode64(BaseCodeOrig, BaseCode64, tablelen);
+			//std::cout << "BaseCode converted!" << std::endl;
+			ConvertCode64(QueryCodeOrig, QueryCode64, tablelen);
+			//std::cout << "QueryCode converted!" << std::endl;
+
+			BuildHashTable64(upbits, tablelen-upbits, BaseCode64 ,htb64);
+			//std::cout << "hash table built!" << std::endl;
+			generateMask64();
+			//std::cout << "mask generated!" << std::endl;
 
 			/*std::cout << "BaseCodeOrig:" << std::endl;
 			printCode(BaseCodeOrig);
 			std::cout << "BaseCode64:" << std::endl;
 			printCode64(BaseCode64,tablelen);*/
 
-			BuildHashTable64(upbits, tablelen-upbits, BaseCode64 ,htb64);
-			generateMask64();
 		}
 
 
@@ -1288,6 +1287,11 @@ public:
 
 		if(gs.size() != features_.get_rows()){
 
+			if((unsigned)SP.search_init_num < K) {
+				std::cout << "# of located points not enough!"<<std::endl;
+				return;
+			}
+
 			if (tablelen <= 32 ){
 				getNeighbors32(K,query);
 			}else if(tablelen <= 64 ){
@@ -1313,6 +1317,8 @@ public:
 
 
 	void getNeighbors32(size_t K, const Matrix<DataType>& query){
+
+
 		int lowbits = tablelen - upbits;
 
 		unsigned int MaxCheck=HammingRadius[radius];
@@ -1376,14 +1382,18 @@ public:
 
 			}
 
-			std::vector<std::pair<float,size_t>> result;
-			for(unsigned int i=0; i<p;i++){
-				result.push_back(std::make_pair(distance_->compare(query.get_row(cur), features_.get_row(pool[i]), features_.get_cols()),pool[i]));
-			}
-			std::partial_sort(result.begin(), result.begin() + K, result.end());
-
 			std::vector<int> res;
-			for(unsigned int j = 0; j < K; j++) res.push_back(result[j].second);
+			if((unsigned)SP.search_init_num == K){
+				for(unsigned int j = 0; j < K; j++) res.push_back(pool[j]);
+			}else{
+
+				std::vector<std::pair<float,size_t>> result;
+				for(unsigned int i=0; i<p;i++){
+					result.push_back(std::make_pair(distance_->compare(query.get_row(cur), features_.get_row(pool[i]), features_.get_cols()),pool[i]));
+				}
+				std::partial_sort(result.begin(), result.begin() + K, result.end());
+				for(unsigned int j = 0; j < K; j++) res.push_back(result[j].second);
+			}
 			nn_results.push_back(res);
 
 		}
@@ -1456,14 +1466,17 @@ public:
 
 			}
 
-			std::vector<std::pair<float,size_t>> result;
-			for(unsigned int i=0; i<p;i++){
-				result.push_back(std::make_pair(distance_->compare(query.get_row(cur), features_.get_row(pool[i]), features_.get_cols()),pool[i]));
-			}
-			std::partial_sort(result.begin(), result.begin() + K, result.end());
-
 			std::vector<int> res;
-			for(unsigned int j = 0; j < K; j++) res.push_back(result[j].second);
+			if((unsigned)SP.search_init_num == K){
+				for(unsigned int j = 0; j < K; j++) res.push_back(pool[j]);
+			}else{
+				std::vector<std::pair<float,size_t>> result;
+				for(unsigned int i=0; i<p;i++){
+					result.push_back(std::make_pair(distance_->compare(query.get_row(cur), features_.get_row(pool[i]), features_.get_cols()),pool[i]));
+				}
+				std::partial_sort(result.begin(), result.begin() + K, result.end());
+				for(unsigned int j = 0; j < K; j++) res.push_back(result[j].second);
+			}
 			nn_results.push_back(res);
 		}
 	}
