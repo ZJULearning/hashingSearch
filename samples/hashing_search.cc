@@ -40,7 +40,7 @@ int main(int argc, char** argv){
   int tablelen = atoi(argv[6]);
   int codelen = atoi(argv[7]);
   int radius = atoi(argv[8]);
-  int index_method = argc == 12 ? atoi(argv[11]) : 0;
+  int index_method = argc == 12 ? atoi(argv[11]) : 1;
   FIndex<float> index(dataset, new L2DistanceAVX<float>(), efanna::HASHINGIndexParams(codelen, tablelen,radius,argv[2],argv[4],index_method));
 
   auto s = std::chrono::high_resolution_clock::now();

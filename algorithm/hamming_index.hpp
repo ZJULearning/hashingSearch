@@ -178,9 +178,9 @@ public:
 		size_t pNum = BaseCode[0].size();
 		size_t nTable = BaseCode.size();
 
-		//HammingDistNum.clear();
-		//HammingDistNum.resize(codelength+1);
-		//std::fill(HammingDistNum.begin(), HammingDistNum.end(), 0);
+		/*HammingDistNum.clear();
+		HammingDistNum.resize(codelength+1);
+		std::fill(HammingDistNum.begin(), HammingDistNum.end(), 0);*/
 
 		for (size_t cur = 0; cur < query.get_rows(); cur++) {
 			std::vector<int>hammingDistance(pNum);
