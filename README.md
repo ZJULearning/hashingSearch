@@ -43,7 +43,7 @@ You need a hash index for search. Please use the [matlab codes](https://github.c
 	QueryCodeFile -- e.g. LSHquerySIFT32b. (The actual binary code file is LSHquerySIFT32b_1, LSHquerySIFT32b_2, ..., the program will automatically load the required number of bits specified by the codelen parameter)  
 	result_file   -- path to save ANN search results of given query   
 	codelen       -- code length of the binary codes. (A long code will be split as multiple 32-bits tables for convenience)   
-	initsz        -- initial pool size, the parameter L in the paper.
+	initsz        -- initial pool size, the parameter L in the paper  
     querNN        -- required number of returned neighbors (i.e. k of k-NN)   
 
 
@@ -61,7 +61,7 @@ You need a hash index for search. Please use the [matlab codes](https://github.c
 	result_file   -- path to save ANN search results of given query   
 	tablelen      -- table length. (A long code will be stored in multiple tables for effeciency. Please see our paper for details. )
     codelen       -- code length of the binary codes. (A long code will be split as multiple 32-bits tables for convenience)   
-    initsz        -- initial pool size, the parameter L in the paper.
+    initsz        -- initial pool size, the parameter L in the paper  
     querNN        -- required number of returned neighbors (i.e. k of k-NN)   
 
 
