@@ -23,8 +23,10 @@ void load_data(char* filename, float*& data, size_t& num,int& dim){// load data 
   }
   in.close();
 }
+
+
 int main(int argc, char** argv){
-	if(argc!=14 && argc!=15){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile result_file tablelen codelen radius initsz querNN graph_index epoch extend search_method(optional)" <<endl; exit(-1);}
+	if(argc!=13 && argc!=14){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile result_file tablelen codelen initsz querNN graph_index epoch extend search_method(optional)" <<endl; exit(-1);}
 
   float* data_load = NULL;
   float* query_load = NULL;
@@ -39,8 +41,7 @@ int main(int argc, char** argv){
 
   int tablelen = atoi(argv[6]);
   int codelen = atoi(argv[7]);
-  int radius = atoi(argv[8]);
-  FIndex<float> index(dataset, new L2DistanceAVX<float>(), efanna::HASHINGIndexParams(codelen, tablelen,radius,argv[2],argv[4],1));
+  FIndex<float> index(dataset, new L2DistanceAVX<float>(), efanna::HASHINGIndexParams(codelen, tablelen,argv[2],argv[4],1));
 
   auto s = std::chrono::high_resolution_clock::now();
   index.buildIndex();
@@ -48,11 +49,11 @@ int main(int argc, char** argv){
   std::chrono::duration<double> diff = e-s;
   std::cout << "Index building time: " << diff.count() << "\n";
 
-  int poolsz = atoi(argv[9]);
-  index.loadGraph(argv[11]);
-  int search_epoc = atoi(argv[12]);
-  int search_extend = atoi(argv[13]);
-  int search_method = argc == 15 ? atoi(argv[14]) : 0;
+  int poolsz = atoi(argv[8]);
+  index.loadGraph(argv[10]);
+  int search_epoc = atoi(argv[11]);
+  int search_extend = atoi(argv[12]);
+  int search_method = argc == 14 ? atoi(argv[13]) : 0;
   index.setSearchParams(search_epoc, poolsz, search_extend,search_method);
 
 
@@ -64,8 +65,6 @@ int main(int argc, char** argv){
 
 
   index.saveResults(argv[5]);
-
-  index.outputVisitBucketNum();
 
   return 0;
 }

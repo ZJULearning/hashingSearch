@@ -24,7 +24,7 @@ void load_data(char* filename, float*& data, size_t& num,int& dim){// load data 
   in.close();
 }
 int main(int argc, char** argv){
-	if(argc!=11 && argc!=12){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile result_file tablelen codelen radius initsz querNN index_method(optional)" <<endl; exit(-1);}
+	if(argc!=10 && argc!=11){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile result_file tablelen codelen initsz querNN index_method(optional)" <<endl; exit(-1);}
 
   float* data_load = NULL;
   float* query_load = NULL;
@@ -39,9 +39,8 @@ int main(int argc, char** argv){
 
   int tablelen = atoi(argv[6]);
   int codelen = atoi(argv[7]);
-  int radius = atoi(argv[8]);
-  int index_method = argc == 12 ? atoi(argv[11]) : 1;
-  FIndex<float> index(dataset, new L2DistanceAVX<float>(), efanna::HASHINGIndexParams(codelen, tablelen,radius,argv[2],argv[4],index_method));
+  int index_method = argc == 11 ? atoi(argv[10]) : 1;
+  FIndex<float> index(dataset, new L2DistanceAVX<float>(), efanna::HASHINGIndexParams(codelen, tablelen,argv[2],argv[4],index_method));
 
   auto s = std::chrono::high_resolution_clock::now();
   index.buildIndex();
@@ -49,12 +48,12 @@ int main(int argc, char** argv){
   std::chrono::duration<double> diff = e-s;
   std::cout << "Index building time: " << diff.count() << "\n";
 
-  int poolsz = atoi(argv[9]);
+  int poolsz = atoi(argv[8]);
   index.setSearchParams(codelen, poolsz, poolsz);
 
 
   s = std::chrono::high_resolution_clock::now();
-  index.knnSearch(atoi(argv[10])/*query nn*/,query);
+  index.knnSearch(atoi(argv[9])/*query nn*/,query);
   e = std::chrono::high_resolution_clock::now();
   diff = e-s;
   std::cout << "query searching time: " << diff.count() << "\n";

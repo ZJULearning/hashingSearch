@@ -19,7 +19,7 @@
 namespace efanna{
 struct HASHINGIndexParams : public IndexParams
 {
-	HASHINGIndexParams(int codelen, int tablelen, int hammingRadius, char*& BaseCodeFile, char*& QueryCodeFile, int index_method=1)
+	HASHINGIndexParams(int codelen, int tablelen, char*& BaseCodeFile, char*& QueryCodeFile, int index_method=1)
 	{
 		init_index_type = HASHING;
 		ValueType len;
@@ -28,9 +28,6 @@ struct HASHINGIndexParams : public IndexParams
 		ValueType tablen;
 		tablen.int_val = tablelen;
 		extra_params.insert(std::make_pair("tablelen",tablen));
-		ValueType radius;
-		radius.int_val = hammingRadius;
-		extra_params.insert(std::make_pair("radius",radius));
 		ValueType bcf;
 		bcf.str_pt = BaseCodeFile;
 		extra_params.insert(std::make_pair("bcfile",bcf));
@@ -88,39 +85,16 @@ public:
 		}
 		std::cout << "use  "<<tablelen<< " bits tables"<< std::endl;
 
-		it = params_.extra_params.find("radius");
-		if(it != params_.extra_params.end()){
-			radius = (it->second).int_val;
-	        if(tablelen<=32){
-	          if(radius > 13){
-	            std::cout << "radius greater than 13 not supported yet!" << std::endl;
-	            radius = 13;
-	          }
-	        }else if(tablelen<=36){
-	          if(radius > 11){
-	            std::cout << "radius greater than 11 not supported yet!" << std::endl;
-	            radius = 11;
-	          }
-	        }else if(tablelen<=44){
-	          if(radius > 9){
-	            std::cout << "radius greater than 9 not supported yet!" << std::endl;
-	            radius = 9;
-	          }
-	        }else if(tablelen<=52){
-	          if(radius > 8){
-	            std::cout << "radius greater than 8 not supported yet!" << std::endl;
-	            radius = 8;
-	          }
-	        }else{
-	          if(radius > 7){
-	            std::cout << "radius greater than 7 not supported yet!" << std::endl;
-	            radius = 7;
-	          }
-	        }
-	        std::cout << "search hamming radius "<<radius<< std::endl;
-		}
-		else{
-			radius = 10;
+		if(tablelen<=32){
+			radius = 13;
+		}else if(tablelen<=36){
+			radius = 11;
+		}else if(tablelen<=44){
+			radius = 9;
+		}else if(tablelen<=52){
+			radius = 8;
+		}else{
+			radius = 7;
 		}
 		std::cout << "search hamming radius "<<radius<< std::endl;
 

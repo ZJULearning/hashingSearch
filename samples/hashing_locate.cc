@@ -24,7 +24,7 @@ void load_data(char* filename, float*& data, size_t& num,int& dim){// load data 
   in.close();
 }
 int main(int argc, char** argv){
-	if(argc!=9){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile tablelen codelen radius initsz" <<endl; exit(-1);}
+	if(argc!=8){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile tablelen codelen initsz" <<endl; exit(-1);}
 
   float* data_load = NULL;
   float* query_load = NULL;
@@ -39,8 +39,7 @@ int main(int argc, char** argv){
 
   int tablelen = atoi(argv[5]);
   int codelen = atoi(argv[6]);
-  int radius = atoi(argv[7]);
-  FIndex<float> index(dataset, new L2DistanceAVX<float>(), efanna::HASHINGIndexParams(codelen, tablelen,radius,argv[2],argv[4]));
+  FIndex<float> index(dataset, new L2DistanceAVX<float>(), efanna::HASHINGIndexParams(codelen, tablelen,argv[2],argv[4]));
 
   auto s = std::chrono::high_resolution_clock::now();
   index.buildIndex();
@@ -48,7 +47,7 @@ int main(int argc, char** argv){
   std::chrono::duration<double> diff = e-s;
   std::cout << "Index building time: " << diff.count() << "\n";
 
-  int poolsz = atoi(argv[10]);
+  int poolsz = atoi(argv[9]);
   index.setSearchParams(codelen, poolsz, poolsz);
 
 
