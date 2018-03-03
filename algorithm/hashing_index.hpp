@@ -85,9 +85,7 @@ public:
 		}
 		std::cout << "use  "<<tablelen<< " bits tables"<< std::endl;
 
-		if(tablelen<=32){
-			radius = 13;
-		}else if(tablelen<=36){
+		if(tablelen<=36){
 			radius = 11;
 		}else if(tablelen<=44){
 			radius = 9;
@@ -1169,6 +1167,7 @@ public:
 				std::cout<<"no such indexing method"<<std::endl;
 			}
 
+
 			BuildHashTable32(upbits, tablelen-upbits, BaseCode ,htb);
 			generateMask32();
 
@@ -1176,6 +1175,7 @@ public:
 			printCode(BaseCodeOrig);
 			std::cout << "BaseCode:" << std::endl;
 			printCode(BaseCode,tablelen);*/
+
 
 		}else{
 
