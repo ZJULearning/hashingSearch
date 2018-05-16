@@ -5,8 +5,9 @@
 
 namespace efanna {
   enum init_algorithm {
+	  HASHING,
       HAMMING,
-	  HASHING
+	  IKHAMMING
   };
 
   union ValueType{

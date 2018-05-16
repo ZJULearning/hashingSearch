@@ -3,6 +3,8 @@
 #include "base_index.hpp"
 #include "hashing_index.hpp"
 #include "hamming_index.hpp"
+#include "ikhamming_index.hpp"
+
 namespace efanna{
 
 
@@ -17,16 +19,19 @@ namespace efanna{
   create_index_by_type(const init_algorithm index_type,
     		const Matrix<DataType>& dataset, const IndexParams& params,  const Distance<DataType>* d)
   {
-      InitIndex<DataType>* initIndex = NULL;
-      switch(index_type){
-      case HAMMING:
-      initIndex = create_index_<HAMMINGIndex, DataType>(dataset, params, d);
-        break;
-        case HASHING:
-        initIndex = create_index_<HASHINGIndex, DataType>(dataset, params, d);
-        break;
-      }
-      return initIndex;
+	  InitIndex<DataType>* initIndex = NULL;
+	  switch(index_type){
+	  case HAMMING:
+		  initIndex = create_index_<HAMMINGIndex, DataType>(dataset, params, d);
+		  break;
+	  case HASHING:
+		  initIndex = create_index_<HASHINGIndex, DataType>(dataset, params, d);
+		  break;
+      case IKHAMMING:
+    	  initIndex = create_index_<IKHAMMINGIndex, DataType>(dataset, params, d);
+    	  break;
+	  }
+	  return initIndex;
   }
 }
 #endif
