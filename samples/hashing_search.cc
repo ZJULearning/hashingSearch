@@ -10,18 +10,25 @@ void load_data(char* filename, float*& data, size_t& num,int& dim){// load data 
   if(!in.is_open()){cout<<"open file error"<<endl;exit(-1);}
   in.read((char*)&dim,4);
   cout<<"data dimension: "<<dim<<endl;
+
   in.seekg(0,ios::end);
   ios::pos_type ss = in.tellg();
   size_t fsize = (size_t)ss;
   num = fsize / (dim+1) / 4;
-  data = new float[num*dim];
+
+  int align_dim = (dim + 7)/8*8;
+  cout<<"data aligned dimension: "<<align_dim<<endl;
+
+  data = new float[num*align_dim]();
 
   in.seekg(0,ios::beg);
   for(size_t i = 0; i < num; i++){
     in.seekg(4,ios::cur);
-    in.read((char*)(data+i*dim),dim*4);
+    in.read((char*)(data+i*align_dim),dim*4);
   }
   in.close();
+
+  dim = align_dim;
 }
 int main(int argc, char** argv){
 	if(argc!=10 && argc!=11){cout<< argv[0] << " data_file BaseCodeFile query_file QueryCodeFile result_file tablelen codelen initsz querNN index_method(optional)" <<endl; exit(-1);}
